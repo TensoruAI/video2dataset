@@ -127,6 +127,11 @@ class WebFileDownloader:
         ext, modality = get_file_info(url)
         if not os.path.isfile(url):
             resp = requests.get(url, stream=True, timeout=self.timeout)
+            if resp.status_code != 200:
+                raise Exception(f"Invalid status code: {resp.status_code}")
+            content_type = resp.headers.get('Content-Type')
+            if "audio" not in content_type and "video" not in content_type:
+                raise Exception(f"Invalid content type: {content_type}")
             byts = resp.content
         else:  # local files (don't want to delete)
             with open(url, "rb") as f:
